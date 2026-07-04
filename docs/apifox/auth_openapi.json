@@ -1,0 +1,530 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "智慧图书 - 认证模块 API",
+    "description": "用户认证相关接口，包含登录、注册、验证码、密码重置、退出登录等功能",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "本地开发环境"
+    }
+  ],
+  "paths": {
+    "/api/auth/send-code": {
+      "post": {
+        "summary": "发送验证码",
+        "description": "向指定账号（邮箱或手机号）发送验证码，用于注册或密码重置",
+        "tags": ["认证"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendCodeDTO"
+              },
+              "examples": {
+                "发送注册验证码": {
+                  "value": {
+                    "account": "zhangsan@example.com",
+                    "type": "register"
+                  }
+                },
+                "发送重置密码验证码": {
+                  "value": {
+                    "account": "13800138001",
+                    "type": "reset_password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "发送成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "验证码发送成功",
+                  "data": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "账号不能为空",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "用户注册",
+        "description": "新用户注册，需要提供账号、密码、确认密码和验证码",
+        "tags": ["认证"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDTO"
+              },
+              "examples": {
+                "正常注册": {
+                  "value": {
+                    "account": "testuser",
+                    "password": "Password123",
+                    "confirmPassword": "Password123",
+                    "code": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "注册成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "注册成功",
+                  "data": {
+                    "user": {
+                      "id": 1,
+                      "username": "testuser",
+                      "avatar": null,
+                      "role": "user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误或验证码无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "密码长度不能少于8位",
+                  "data": null
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "账号已存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 409,
+                  "message": "账号已存在",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "用户登录",
+        "description": "用户登录接口，支持账号密码登录，可选择记住我",
+        "tags": ["认证"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDTO"
+              },
+              "examples": {
+                "普通登录": {
+                  "value": {
+                    "account": "zhangsan",
+                    "password": "Password123",
+                    "rememberMe": false
+                  }
+                },
+                "记住我登录": {
+                  "value": {
+                    "account": "zhangsan",
+                    "password": "Password123",
+                    "rememberMe": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "登录成功",
+            "headers": {
+              "Set-Cookie": {
+                "description": "JWT Token Cookie",
+                "schema": {
+                  "type": "string",
+                  "example": "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; Path=/; HttpOnly; SameSite=Strict"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "登录成功",
+                  "data": {
+                    "user": {
+                      "id": 1,
+                      "username": "zhangsan",
+                      "avatar": null,
+                      "role": "user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "账号不能为空",
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "账号或密码错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 401,
+                  "message": "账号或密码错误",
+                  "data": null
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "账号已锁定",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 423,
+                  "message": "账号已被锁定，请稍后重试",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "summary": "重置密码",
+        "description": "通过验证码重置用户密码",
+        "tags": ["认证"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDTO"
+              },
+              "examples": {
+                "正常重置密码": {
+                  "value": {
+                    "account": "zhangsan",
+                    "code": "123456",
+                    "newPassword": "NewPass123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "重置成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "密码修改成功，请重新登录",
+                  "data": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误或验证码无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 400,
+                  "message": "验证码无效",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "退出登录",
+        "description": "清除登录状态，删除Token Cookie",
+        "tags": ["认证"],
+        "responses": {
+          "200": {
+            "description": "退出成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "退出成功",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "获取当前登录用户",
+        "description": "获取当前登录用户的信息",
+        "tags": ["认证"],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "id": 1,
+                    "username": "zhangsan",
+                    "avatar": null,
+                    "role": "user"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "code": 401,
+                  "message": "未登录",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应码，200表示成功"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "type": "object",
+            "description": "响应数据"
+          }
+        }
+      },
+      "SendCodeDTO": {
+        "type": "object",
+        "description": "发送验证码请求",
+        "required": ["account", "type"],
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "账号（邮箱或手机号）"
+          },
+          "type": {
+            "type": "string",
+            "description": "类型：register-注册，reset_password-重置密码",
+            "enum": ["register", "reset_password"]
+          }
+        }
+      },
+      "RegisterDTO": {
+        "type": "object",
+        "description": "注册请求",
+        "required": ["account", "password", "confirmPassword", "code"],
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "账号"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码（至少8位，包含大小写字母和数字）",
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "description": "确认密码"
+          },
+          "code": {
+            "type": "string",
+            "description": "验证码"
+          }
+        }
+      },
+      "LoginDTO": {
+        "type": "object",
+        "description": "登录请求",
+        "required": ["account", "password"],
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "账号"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码"
+          },
+          "rememberMe": {
+            "type": "boolean",
+            "description": "是否记住我",
+            "default": false
+          }
+        }
+      },
+      "ResetPasswordDTO": {
+        "type": "object",
+        "description": "重置密码请求",
+        "required": ["account", "code", "newPassword"],
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "账号"
+          },
+          "code": {
+            "type": "string",
+            "description": "验证码"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "新密码（至少8位，包含大小写字母和数字）",
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$"
+          }
+        }
+      },
+      "LoginUser": {
+        "type": "object",
+        "description": "登录用户信息",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "用户ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像URL"
+          },
+          "role": {
+            "type": "string",
+            "description": "用户角色",
+            "enum": ["user", "admin"]
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "description": "登录响应",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/LoginUser"
+          }
+        }
+      }
+    }
+  }
+}
