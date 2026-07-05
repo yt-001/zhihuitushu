@@ -34,6 +34,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/home/**").permitAll()
                 .requestMatchers("/api/books/**").permitAll()
+                .requestMatchers("/api/files/**").permitAll()
+                .requestMatchers("/api/admin/login").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exception -> exception

@@ -1,6 +1,6 @@
 package com.yt.zhihuitushu.service.impl;
 
-import com.yt.zhihuitushu.service.EmailService;
+import com.yt.zhihuitushu.service.AsyncEmailService;
 import com.yt.zhihuitushu.service.RedisService;
 import com.yt.zhihuitushu.service.VerifyCodeService;
 import jakarta.annotation.Resource;
@@ -19,7 +19,7 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
     private RedisService redisService;
 
     @Resource
-    private EmailService emailService;
+    private AsyncEmailService asyncEmailService;
 
     private static final String VERIFY_CODE_PREFIX = "verify_code:";
     private static final String VERIFY_CODE_SEND_PREFIX = "verify_code_send:";
@@ -73,16 +73,11 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
         String code = generateCode(account);
         recordSend(account);
 
-        // 当 type 为 email 且账号为邮箱格式时，真实发送邮件
+        // 当 type 为 email 且账号为邮箱格式时，异步发送邮件
         if ("email".equalsIgnoreCase(type) && EMAIL_PATTERN.matcher(account).matches()) {
-            try {
-                emailService.sendVerificationCode(account, code);
-            } catch (Exception e) {
-                log.error("发送验证码邮件到 {} 失败", account, e);
-                // 发送失败时清除已生成的验证码，避免用户收不到码但系统认为已发送
-                redisService.delete(VERIFY_CODE_PREFIX + account);
-                throw new RuntimeException("验证码邮件发送失败，请稍后重试");
-            }
+            // 异步发送邮件，不阻塞当前线程，立即返回响应给前端
+            asyncEmailService.sendVerificationCodeAsync(account, code);
+            log.info("验证码邮件已提交异步发送任务，收件人: {}", account);
         }
     }
 }

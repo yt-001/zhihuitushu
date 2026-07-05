@@ -165,3 +165,51 @@ CREATE TABLE IF NOT EXISTS search_history (
     INDEX idx_keyword (keyword),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='搜索记录表';
+
+-- ======================== 管理端相关表 ========================
+
+-- 管理员表
+CREATE TABLE IF NOT EXISTS admins (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '管理员ID',
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+    password VARCHAR(255) NOT NULL COMMENT 'BCrypt加密后的密码',
+    nickname VARCHAR(50) NULL COMMENT '昵称',
+    avatar VARCHAR(500) NULL COMMENT '头像URL',
+    email VARCHAR(100) NULL COMMENT '邮箱',
+    phone VARCHAR(20) NULL COMMENT '手机号',
+    last_login_time DATETIME NULL COMMENT '最后登录时间',
+    last_login_ip VARCHAR(50) NULL COMMENT '最后登录IP',
+    status TINYINT DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_username (username),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员表';
+
+-- 管理员操作日志表
+CREATE TABLE IF NOT EXISTS admin_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '日志ID',
+    admin_id BIGINT NOT NULL COMMENT '管理员ID',
+    action VARCHAR(50) NOT NULL COMMENT '操作类型',
+    module VARCHAR(50) NOT NULL COMMENT '操作模块',
+    content TEXT NULL COMMENT '操作内容',
+    ip VARCHAR(50) NULL COMMENT '操作IP',
+    user_agent VARCHAR(500) NULL COMMENT '用户代理',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+    INDEX idx_admin_id (admin_id),
+    INDEX idx_action (action),
+    INDEX idx_created_at (created_at),
+    FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='管理员操作日志表';
+
+-- 系统配置表
+CREATE TABLE IF NOT EXISTS system_configs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '配置ID',
+    config_key VARCHAR(100) NOT NULL UNIQUE COMMENT '配置键',
+    config_value TEXT NULL COMMENT '配置值',
+    config_type VARCHAR(20) DEFAULT 'string' COMMENT '配置类型(string,number,boolean,json)',
+    description VARCHAR(255) NULL COMMENT '配置说明',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_config_key (config_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统配置表';
