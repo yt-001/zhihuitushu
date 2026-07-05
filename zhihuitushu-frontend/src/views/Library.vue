@@ -1,406 +1,126 @@
-<template>
-  <div class="library-page">
-    <header class="header">
-      <div class="header-content">
-        <div class="logo" @click="$router.push('/')">
-          <Notebook class="logo-icon" />
-          <span class="logo-text">智慧图书</span>
-        </div>
-        <div class="header-actions">
-          <router-link to="/login" class="login-link">登录</router-link>
-        </div>
-      </div>
-    </header>
-
-    <main class="main-content">
-      <div class="page-header">
-        <h1 class="page-title">我的书架</h1>
-        <div class="filter-tabs">
-          <span :class="['tab', { active: activeTab === 'reading' }]" @click="activeTab = 'reading'">
-            <Notebook class="tab-icon" />
-            阅读中
-          </span>
-          <span :class="['tab', { active: activeTab === 'finished' }]" @click="activeTab = 'finished'">
-            <CircleCheck class="tab-icon" />
-            已完成
-          </span>
-          <span :class="['tab', { active: activeTab === 'wishlist' }]" @click="activeTab = 'wishlist'">
-            <StarFilled class="tab-icon" />
-            想读
-          </span>
-        </div>
-      </div>
-
-      <div class="books-list" v-if="activeTab === 'reading'">
-        <div v-if="readingBooks.length === 0" class="empty-state">
-          <Notebook class="empty-icon" />
-          <p class="empty-text">暂无阅读中的图书</p>
-          <el-button type="primary" @click="$router.push('/books')">去发现图书</el-button>
-        </div>
-        <div class="book-item" v-for="book in readingBooks" :key="book.id">
-          <div class="book-cover">
-            <img :src="book.cover" :alt="book.title" />
-            <div class="progress-ring">
-              <svg viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#E2E8F0" stroke-width="4" />
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#92400E" stroke-width="4" :stroke-dasharray="circumference" :stroke-dashoffset="getProgressOffset(book.progress)" stroke-linecap="round" />
-              </svg>
-              <span class="progress-text">{{ book.progress }}%</span>
-            </div>
-          </div>
-          <div class="book-info">
-            <h3 class="book-title">{{ book.title }}</h3>
-            <p class="book-author">{{ book.author }}</p>
-            <p class="book-progress">已阅读 {{ book.readPages }}/{{ book.totalPages }} 页</p>
-            <p class="book-time">上次阅读：{{ book.lastReadTime }}</p>
-          </div>
-          <div class="book-actions">
-            <el-button type="primary" size="small" @click="continueReading(book)">继续阅读</el-button>
-            <el-button size="small" @click="removeBook(book)">移出书架</el-button>
-          </div>
-        </div>
-      </div>
-
-      <div class="books-grid" v-else>
-        <div v-if="finishedBooks.length === 0" class="empty-state">
-          <CircleCheck class="empty-icon" />
-          <p class="empty-text">暂无已完成的图书</p>
-        </div>
-        <div class="book-card" v-for="book in finishedBooks" :key="book.id">
-          <div class="book-cover">
-            <img :src="book.cover" :alt="book.title" />
-            <div class="finished-badge">已完成</div>
-          </div>
-          <h3 class="book-title">{{ book.title }}</h3>
-          <p class="book-author">{{ book.author }}</p>
-          <div class="read-time">阅读时长：{{ book.readTime }}</div>
-        </div>
-      </div>
-    </main>
-  </div>
-</template>
-
 <script setup>
 import { ref } from 'vue'
-import { Notebook, CircleCheck, StarFilled } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import TopAppBar from '@/components/TopAppBar.vue'
+import GlassCard from '@/components/GlassCard.vue'
 
-const activeTab = ref('reading')
-const circumference = 2 * Math.PI * 45
+const stats = [
+  { icon: 'favorite', label: '收藏', count: '128', color: 'text-primary' },
+  { icon: 'folder', label: '本地', count: '32', color: 'text-tertiary' },
+  { icon: 'menu_book', label: '在读', count: '12', color: 'text-secondary' },
+  { icon: 'shopping_bag', label: '已购', count: '45', color: 'text-on-surface-variant' },
+]
 
-const readingBooks = ref([
-  {
-    id: 1,
-    title: '百年孤独',
-    author: '加西亚·马尔克斯',
-    cover: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=book%20cover%20magical%20realism&image_size=square',
-    progress: 65,
-    readPages: 234,
-    totalPages: 360,
-    lastReadTime: '2小时前',
-  },
-  {
-    id: 2,
-    title: '三体',
-    author: '刘慈欣',
-    cover: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=book%20cover%20science%20fiction&image_size=square',
-    progress: 30,
-    readPages: 120,
-    totalPages: 400,
-    lastReadTime: '1天前',
-  },
-])
+const recentlyRead = [
+  { title: '命运', author: '蔡崇达', color: 'from-primary/30 to-tertiary-container/30' },
+  { title: '长安的荔枝', author: '马伯庸', color: 'from-secondary-container/30 to-primary-fixed/30' },
+  { title: '始于极限', author: '上野千鹤子', color: 'from-tertiary-container/30 to-surface-container/30' },
+]
 
-const finishedBooks = ref([
-  { id: 3, title: '小王子', author: '圣埃克苏佩里', cover: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=book%20cover%20little%20prince&image_size=square', readTime: '3小时' },
-  { id: 4, title: '活着', author: '余华', cover: 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=book%20cover%20Chinese%20literature&image_size=square', readTime: '5小时' },
-])
-
-const getProgressOffset = (progress) => {
-  return circumference - (progress / 100) * circumference
-}
-
-const continueReading = (book) => {
-  ElMessage.success(`继续阅读《${book.title}》`)
-}
-
-const removeBook = (book) => {
-  readingBooks.value = readingBooks.value.filter((b) => b.id !== book.id)
-  ElMessage.success('已移出书架')
-}
+const bookshelves = [
+  { title: '睡前读物', count: 12, icon: 'bedtime', color: 'from-primary to-tertiary' },
+  { title: '通勤路上', count: 8, icon: 'directions_transit', color: 'from-secondary-container to-primary-container' },
+  { title: '深度学习', count: 24, icon: 'school', color: 'from-tertiary to-secondary' },
+]
 </script>
 
-<style scoped>
-.library-page {
-  min-height: 100vh;
-  background: #F8FAFC;
-}
+<template>
+  <div class="min-h-screen flex flex-col gap-stack-gap-lg px-container-margin pt-4 pb-32">
+    <TopAppBar title="我的书架" :show-search="false" />
 
-.header {
-  background: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
-}
+    <!-- User profile header -->
+    <GlassCard class="rounded-[24px] flex items-center gap-inline-gap shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+      <div class="relative">
+        <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-sm bg-gradient-to-br from-primary-container to-tertiary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-4xl">person</span>
+        </div>
+        <div class="absolute -bottom-1 -right-1 bg-secondary-container text-on-secondary-container text-label-sm px-2 py-0.5 rounded-full border border-white font-bold">
+          VIP
+        </div>
+      </div>
+      <div class="flex flex-col">
+        <h2 class="text-headline-md">书友小雅</h2>
+        <p class="text-body-md text-on-surface-variant mt-1">读万卷书，行万里路</p>
+        <div class="flex gap-2 mt-2">
+          <span class="glass-card px-2 py-1 rounded-full text-label-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">book</span> Lv.8
+          </span>
+          <span class="glass-card px-2 py-1 rounded-full text-label-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">group</span> 1.2k 关注
+          </span>
+        </div>
+      </div>
+    </GlassCard>
 
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+    <!-- Stats row -->
+    <section class="grid grid-cols-4 gap-2">
+      <div
+        v-for="stat in stats"
+        :key="stat.label"
+        class="glass-card rounded-[16px] p-3 flex flex-col items-center justify-center text-center gap-1 hover:scale-[1.02] transition-transform cursor-pointer"
+      >
+        <span class="material-symbols-outlined material-symbols-filled" :class="stat.color">{{ stat.icon }}</span>
+        <span class="text-label-md text-on-surface-variant">{{ stat.label }}</span>
+        <span class="text-body-md font-bold">{{ stat.count }}</span>
+      </div>
+    </section>
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
+    <!-- Recently read -->
+    <section class="flex flex-col gap-stack-gap-sm">
+      <div class="flex justify-between items-center">
+        <h3 class="text-headline-sm text-on-surface">最近阅读</h3>
+        <button class="text-primary text-label-md">更多</button>
+      </div>
+      <div class="flex overflow-x-auto no-scrollbar gap-inline-gap pb-4 -mx-container-margin px-container-margin">
+        <div
+          v-for="book in recentlyRead"
+          :key="book.title"
+          class="flex-none w-32 flex flex-col gap-2"
+        >
+          <div class="w-32 h-40 rounded-[16px] overflow-hidden relative shadow-sm bg-gradient-to-br flex items-center justify-center" :class="book.color">
+            <span class="material-symbols-outlined text-white text-4xl opacity-80">book</span>
+            <div class="absolute bottom-2 right-2 bg-black/40 backdrop-blur-md rounded-full p-1 flex items-center justify-center">
+              <span class="material-symbols-outlined text-white text-[16px] material-symbols-filled">play_arrow</span>
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-body-md font-semibold truncate">{{ book.title }}</span>
+            <span class="text-label-sm text-on-surface-variant truncate">{{ book.author }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-.logo-icon {
-  width: 32px;
-  height: 32px;
-  color: #92400E;
-}
-
-.logo-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0F172A;
-}
-
-.header-actions {
-  display: flex;
-  gap: 16px;
-}
-
-.login-link {
-  font-size: 14px;
-  color: #92400E;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px;
-}
-
-.page-header {
-  margin-bottom: 32px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 20px;
-}
-
-.filter-tabs {
-  display: flex;
-  gap: 8px;
-  background: #FFFFFF;
-  padding: 4px;
-  border-radius: 12px;
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #64748B;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.tab.active {
-  background: linear-gradient(135deg, #92400E 0%, #D97706 100%);
-  color: #FFFFFF;
-}
-
-.tab-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.book-item {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: #FFFFFF;
-  padding: 24px;
-  border-radius: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.book-item .book-cover {
-  width: 100px;
-  height: 140px;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.book-item .book-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.progress-ring {
-  position: absolute;
-  bottom: -8px;
-  right: -8px;
-  width: 48px;
-  height: 48px;
-  background: #FFFFFF;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.progress-ring svg {
-  width: 40px;
-  height: 40px;
-  transform: rotate(-90deg);
-}
-
-.progress-text {
-  position: absolute;
-  font-size: 10px;
-  font-weight: 600;
-  color: #92400E;
-}
-
-.book-info {
-  flex: 1;
-}
-
-.book-item .book-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #0F172A;
-  margin-bottom: 4px;
-}
-
-.book-item .book-author {
-  font-size: 14px;
-  color: #64748B;
-  margin-bottom: 8px;
-}
-
-.book-progress,
-.book-time {
-  font-size: 13px;
-  color: #94A3B8;
-  margin-bottom: 4px;
-}
-
-.book-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 80px 0;
-}
-
-.empty-icon {
-  width: 80px;
-  height: 80px;
-  color: #CBD5E1;
-  margin-bottom: 16px;
-}
-
-.empty-text {
-  font-size: 16px;
-  color: #64748B;
-  margin-bottom: 24px;
-}
-
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
-
-.book-card {
-  background: #FFFFFF;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.book-card .book-cover {
-  width: 100%;
-  padding-top: 140%;
-  background: #F1F5F9;
-  position: relative;
-}
-
-.book-card .book-cover img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.finished-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #10B981;
-  color: #FFFFFF;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.book-card .book-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #0F172A;
-  padding: 12px 12px 4px;
-}
-
-.book-card .book-author {
-  font-size: 13px;
-  color: #64748B;
-  padding: 0 12px 8px;
-}
-
-.read-time {
-  font-size: 12px;
-  color: #94A3B8;
-  padding: 0 12px 12px;
-}
-
-@media (max-width: 768px) {
-  .books-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .book-item {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .book-actions {
-    width: 100%;
-    justify-content: center;
-  }
-}
-</style>
+    <!-- Bookshelves -->
+    <section class="flex flex-col gap-stack-gap-md pb-6">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <h3 class="text-headline-sm text-on-surface">书单</h3>
+          <span class="text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">3</span>
+        </div>
+        <button class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:scale-105 transition-transform shadow-sm">
+          <span class="material-symbols-outlined text-[20px]">add</span>
+        </button>
+      </div>
+      <div class="flex flex-col gap-3">
+        <div
+          v-for="shelf in bookshelves"
+          :key="shelf.title"
+          class="glass-card rounded-[16px] p-2 flex items-center gap-3 hover:scale-[1.01] transition-transform cursor-pointer"
+        >
+          <div class="w-16 h-16 rounded-[12px] flex-shrink-0 flex items-center justify-center bg-gradient-to-br" :class="shelf.color">
+            <span class="material-symbols-outlined text-white text-[32px] material-symbols-filled">{{ shelf.icon }}</span>
+          </div>
+          <div class="flex flex-col flex-grow justify-center">
+            <h4 class="text-body-lg font-bold">{{ shelf.title }}</h4>
+            <p class="text-label-md text-on-surface-variant">
+              <span>{{ shelf.count }} 本书</span>
+            </p>
+          </div>
+          <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>

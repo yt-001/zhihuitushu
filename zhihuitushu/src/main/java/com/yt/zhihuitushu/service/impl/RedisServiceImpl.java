@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisServiceImpl implements RedisService {
 
-    @Resource
+    @Resource(name = "stringRedisTemplate")
     private StringRedisTemplate redisTemplate;
 
     @Override

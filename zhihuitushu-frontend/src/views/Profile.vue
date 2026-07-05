@@ -1,372 +1,121 @@
-<template>
-  <div class="profile-page">
-    <header class="header">
-      <div class="header-content">
-        <div class="logo" @click="$router.push('/')">
-          <Notebook class="logo-icon" />
-          <span class="logo-text">智慧图书</span>
-        </div>
-        <div class="header-actions">
-          <router-link to="/login" class="login-link">登录</router-link>
-        </div>
-      </div>
-    </header>
-
-    <main class="main-content">
-      <div class="profile-card">
-        <div class="profile-header">
-          <div class="avatar-wrapper">
-            <div class="avatar">
-              <User class="avatar-icon" />
-            </div>
-            <div class="edit-avatar">
-              <Camera class="camera-icon" />
-            </div>
-          </div>
-          <div class="profile-info">
-            <h2 class="username">用户名</h2>
-            <p class="email">未绑定邮箱</p>
-            <div class="profile-stats">
-              <div class="stat">
-                <span class="stat-value">0</span>
-                <span class="stat-label">已读</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">0</span>
-                <span class="stat-label">在读</span>
-              </div>
-              <div class="stat">
-                <span class="stat-value">0</span>
-                <span class="stat-label">想读</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <h3 class="section-title">我的阅读</h3>
-          <div class="menu-list">
-            <div class="menu-item" @click="$router.push('/library')">
-              <BookOpen class="menu-icon" />
-              <span class="menu-text">我的书架</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <Clock class="menu-icon" />
-              <span class="menu-text">阅读记录</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <Star class="menu-icon" />
-              <span class="menu-text">我的书评</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <h3 class="section-title">账户设置</h3>
-          <div class="menu-list">
-            <div class="menu-item">
-              <User class="menu-icon" />
-              <span class="menu-text">编辑资料</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <Lock class="menu-icon" />
-              <span class="menu-text">修改密码</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <Bell class="menu-icon" />
-              <span class="menu-text">消息通知</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <MapLocation class="menu-icon" />
-              <span class="menu-text">语言设置</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-          </div>
-        </div>
-
-        <div class="menu-section">
-          <h3 class="section-title">关于</h3>
-          <div class="menu-list">
-            <div class="menu-item">
-              <Help class="menu-icon" />
-              <span class="menu-text">帮助中心</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <Files class="menu-icon" />
-              <span class="menu-text">用户协议</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <Key class="menu-icon" />
-              <span class="menu-text">隐私政策</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-            <div class="menu-item">
-              <Setting class="menu-icon" />
-              <span class="menu-text">关于我们</span>
-              <ArrowRight class="menu-arrow" />
-            </div>
-          </div>
-        </div>
-
-        <div class="logout-section">
-          <el-button class="logout-btn" @click="handleLogout">退出登录</el-button>
-        </div>
-      </div>
-    </main>
-  </div>
-</template>
-
 <script setup>
-import { Notebook, User, Camera, Clock, Star, Lock, Bell, MapLocation, Help, Files, Key, Setting, ArrowRight } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { logout } from '@/api/auth.js'
+import { clearToken, getUser } from '@/stores/auth.js'
+import TopAppBar from '@/components/TopAppBar.vue'
+import GlassCard from '@/components/GlassCard.vue'
 
-const handleLogout = () => {
-  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-  ElMessage.success('已退出登录')
-  window.location.href = '/login'
+const router = useRouter()
+
+const user = getUser()
+
+const menuGroups = [
+  {
+    title: '账号',
+    items: [
+      { icon: 'person', label: '个人资料', color: 'text-primary' },
+      { icon: 'notifications', label: '消息通知', color: 'text-tertiary' },
+      { icon: 'bookmark', label: '阅读偏好', color: 'text-secondary' },
+    ],
+  },
+  {
+    title: '阅读',
+    items: [
+      { icon: 'history', label: '阅读记录', color: 'text-on-surface-variant' },
+      { icon: 'download', label: '下载管理', color: 'text-primary' },
+      { icon: 'schedule', label: '阅读计划', color: 'text-tertiary' },
+    ],
+  },
+  {
+    title: '其他',
+    items: [
+      { icon: 'help', label: '帮助与反馈', color: 'text-secondary' },
+      { icon: 'settings', label: '设置', color: 'text-on-surface-variant' },
+    ],
+  },
+]
+
+async function handleLogout() {
+  try {
+    await logout()
+  } catch (e) {
+    // ignore
+  }
+  clearToken()
+  router.replace({ name: 'login' })
 }
 </script>
 
-<style scoped>
-.profile-page {
-  min-height: 100vh;
-  background: #F8FAFC;
-}
+<template>
+  <div class="min-h-screen flex flex-col gap-stack-gap-lg px-container-margin pt-4 pb-32">
+    <TopAppBar title="个人中心" :show-search="false" />
 
-.header {
-  background: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
-}
+    <!-- Profile header -->
+    <GlassCard class="rounded-[24px] flex items-center gap-inline-gap shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+      <div class="relative">
+        <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-sm bg-gradient-to-br from-primary-container to-tertiary-container flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-4xl">person</span>
+        </div>
+        <div class="absolute -bottom-1 -right-1 bg-secondary-container text-on-secondary-container text-label-sm px-2 py-0.5 rounded-full border border-white font-bold">
+          VIP
+        </div>
+      </div>
+      <div class="flex-1">
+        <h2 class="text-headline-md">{{ user?.username || '书友小雅' }}</h2>
+        <p class="text-body-md text-on-surface-variant mt-1">ID: {{ user?.id || '13800138000' }}</p>
+      </div>
+      <button class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors touch-target">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+    </GlassCard>
 
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+    <!-- Reading stats -->
+    <section class="grid grid-cols-3 gap-3">
+      <div class="glass-card rounded-[16px] p-4 flex flex-col items-center text-center gap-1">
+        <span class="text-headline-md font-bold text-primary">128</span>
+        <span class="text-label-md text-on-surface-variant">已读书</span>
+      </div>
+      <div class="glass-card rounded-[16px] p-4 flex flex-col items-center text-center gap-1">
+        <span class="text-headline-md font-bold text-tertiary">86</span>
+        <span class="text-label-md text-on-surface-variant">在读时</span>
+      </div>
+      <div class="glass-card rounded-[16px] p-4 flex flex-col items-center text-center gap-1">
+        <span class="text-headline-md font-bold text-secondary">12</span>
+        <span class="text-label-md text-on-surface-variant">连续天</span>
+      </div>
+    </section>
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
+    <!-- Menu groups -->
+    <section class="flex flex-col gap-stack-gap-md">
+      <div
+        v-for="group in menuGroups"
+        :key="group.title"
+        class="flex flex-col gap-stack-gap-sm"
+      >
+        <h3 class="text-headline-sm text-on-surface px-1">{{ group.title }}</h3>
+        <GlassCard class="rounded-[20px] overflow-hidden">
+          <div class="flex flex-col">
+            <button
+              v-for="(item, index) in group.items"
+              :key="item.label"
+              class="flex items-center gap-inline-gap py-3 px-2 hover:bg-white/40 transition-colors"
+              :class="index !== group.items.length - 1 ? 'border-b border-outline-variant/30' : ''"
+            >
+              <span class="material-symbols-outlined" :class="item.color">{{ item.icon }}</span>
+              <span class="flex-1 text-body-lg text-left">{{ item.label }}</span>
+              <span class="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_right</span>
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+    </section>
 
-.logo-icon {
-  width: 32px;
-  height: 32px;
-  color: #92400E;
-}
-
-.logo-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0F172A;
-}
-
-.header-actions {
-  display: flex;
-  gap: 16px;
-}
-
-.login-link {
-  font-size: 14px;
-  color: #92400E;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.main-content {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 40px;
-}
-
-.profile-card {
-  background: #FFFFFF;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 32px;
-  border-bottom: 1px solid #F1F5F9;
-}
-
-.avatar-wrapper {
-  position: relative;
-}
-
-.avatar {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #92400E 0%, #D97706 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar-icon {
-  width: 40px;
-  height: 40px;
-  color: #FFFFFF;
-}
-
-.edit-avatar {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 28px;
-  height: 28px;
-  background: #FFFFFF;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-}
-
-.camera-icon {
-  width: 14px;
-  height: 14px;
-  color: #92400E;
-}
-
-.profile-info {
-  flex: 1;
-}
-
-.username {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0F172A;
-  margin-bottom: 4px;
-}
-
-.email {
-  font-size: 14px;
-  color: #64748B;
-  margin-bottom: 16px;
-}
-
-.profile-stats {
-  display: flex;
-  gap: 32px;
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 20px;
-  font-weight: 600;
-  color: #0F172A;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #94A3B8;
-}
-
-.menu-section {
-  padding: 20px 32px;
-  border-bottom: 1px solid #F1F5F9;
-}
-
-.section-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #94A3B8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-}
-
-.menu-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 0;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.menu-item:hover {
-  background: #F8FAFC;
-  margin: 0 -32px;
-  padding-left: 32px;
-  padding-right: 32px;
-}
-
-.menu-icon {
-  width: 20px;
-  height: 20px;
-  color: #92400E;
-}
-
-.menu-text {
-  flex: 1;
-  font-size: 15px;
-  color: #334155;
-}
-
-.menu-arrow {
-  width: 16px;
-  height: 16px;
-  color: #CBD5E1;
-}
-
-.logout-section {
-  padding: 24px 32px;
-}
-
-.logout-btn {
-  width: 100%;
-  height: 44px;
-  border-radius: 8px;
-  font-size: 15px;
-  color: #DC2626;
-  border-color: #DC2626;
-}
-
-@media (max-width: 480px) {
-  .main-content {
-    padding: 20px 16px;
-  }
-
-  .profile-header {
-    padding: 24px;
-  }
-
-  .profile-stats {
-    gap: 20px;
-  }
-
-  .menu-section {
-    padding: 16px 20px;
-  }
-}
-</style>
+    <!-- Logout -->
+    <button
+      class="w-full py-3 rounded-full border border-outline-variant text-on-surface-variant text-headline-sm hover:bg-white/50 transition-colors"
+      @click="handleLogout"
+    >
+      退出登录
+    </button>
+  </div>
+</template>

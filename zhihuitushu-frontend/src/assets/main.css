@@ -1,35 +1,213 @@
-@import './base.css';
+@import "tailwindcss";
 
+@theme {
+  /* Material You color tokens - unified */
+  --color-surface: #f7f9ff;
+  --color-surface-dim: #cadcf0;
+  --color-surface-bright: #f7f9ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #ecf4ff;
+  --color-surface-container: #e2efff;
+  --color-surface-container-high: #d8eafe;
+  --color-surface-container-highest: #d2e4f8;
+
+  --color-on-surface: #0b1d2b;
+  --color-on-surface-variant: #5a413f;
+  --color-inverse-surface: #213241;
+  --color-inverse-on-surface: #e7f2ff;
+
+  --color-outline: #8e706e;
+  --color-outline-variant: #e2bebc;
+  --color-surface-tint: #b3272e;
+
+  --color-primary: #b3272e;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ff5e5e;
+  --color-on-primary-container: #63000c;
+  --color-inverse-primary: #ffb3af;
+  --color-primary-fixed: #ffdad7;
+  --color-primary-fixed-dim: #ffb3af;
+  --color-on-primary-fixed: #410005;
+  --color-on-primary-fixed-variant: #910619;
+
+  --color-secondary: #825500;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fdb64a;
+  --color-on-secondary-container: #704800;
+  --color-secondary-fixed: #ffddb3;
+  --color-secondary-fixed-dim: #ffb950;
+  --color-on-secondary-fixed: #291800;
+  --color-on-secondary-fixed-variant: #633f00;
+
+  --color-tertiary: #006495;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #249de2;
+  --color-on-tertiary-container: #00314c;
+  --color-tertiary-fixed: #cbe6ff;
+  --color-tertiary-fixed-dim: #8fcdff;
+  --color-on-tertiary-fixed: #001e30;
+  --color-on-tertiary-fixed-variant: #004b71;
+
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-background: #f7f9ff;
+  --color-on-background: #0b1d2b;
+  --color-surface-variant: #d2e4f8;
+
+  /* Typography */
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --text-display-lg: clamp(22px, 6.4vw, 28px);
+  --text-display-lg--line-height: 1.2;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 800;
+
+  --text-headline-md: clamp(18px, 5.33vw, 22px);
+  --text-headline-md--line-height: 1.3;
+  --text-headline-md--font-weight: 700;
+
+  --text-headline-sm: clamp(16px, 4.8vw, 19px);
+  --text-headline-sm--line-height: 1.3;
+  --text-headline-sm--font-weight: 700;
+
+  --text-body-lg: clamp(15px, 4.27vw, 17px);
+  --text-body-lg--line-height: 1.5;
+  --text-body-lg--font-weight: 500;
+
+  --text-body-md: clamp(14px, 3.73vw, 15px);
+  --text-body-md--line-height: 1.5;
+  --text-body-md--font-weight: 400;
+
+  --text-label-md: clamp(12px, 3.2vw, 13px);
+  --text-label-md--line-height: 1.3;
+  --text-label-md--letter-spacing: 0.01em;
+  --text-label-md--font-weight: 600;
+
+  --text-label-sm: clamp(10px, 2.67vw, 11px);
+  --text-label-sm--line-height: 1.3;
+  --text-label-sm--font-weight: 500;
+
+  /* Spacing */
+  --spacing-container-margin: clamp(16px, 5vw, 20px);
+  --spacing-stack-gap-lg: 24px;
+  --spacing-stack-gap-md: 16px;
+  --spacing-stack-gap-sm: 8px;
+  --spacing-inline-gap: 12px;
+  --spacing-card-padding: 16px;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+}
+
+/* Base */
+html,
+body,
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  height: 100%;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+body {
+  font-family: var(--font-sans);
+  background-color: #f7f9ff;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 221, 179, 0.4) 0%, transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(255, 179, 175, 0.3) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(203, 230, 255, 0.4) 0%, transparent 65%);
+  background-attachment: fixed;
+  color: var(--color-on-surface);
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  font-size: 16px;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+/* Mobile container */
+.mobile-container {
+  width: 100%;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  min-height: 100%;
+  box-shadow: 0 0 80px rgba(11, 29, 43, 0.06);
+  background: rgba(247, 249, 255, 0.6);
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+/* Glassmorphism utilities */
+.glass-panel,
+.glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.glass-nav {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Scrollbar hiding */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Material Symbols adjustments */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.material-symbols-filled {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+/* Safe area helper */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 12px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Touch target minimum 44px */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Prevent iOS zoom on input focus */
+input, textarea, select {
+  font-size: 16px;
+}
+
+/* Page transition */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
