@@ -22,14 +22,14 @@ onMounted(async () => {
 
 <template>
   <div class="mobile-container relative min-h-full overflow-x-hidden">
-    <!-- Painterly background blobs -->
+    <!-- Soft green background blobs -->
     <div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
-      <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] bg-secondary-container opacity-20 blur-[100px] rounded-full mix-blend-multiply" />
+      <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] bg-primary-container opacity-25 blur-[100px] rounded-full mix-blend-multiply" />
       <div class="absolute bottom-[-10%] right-[-10%] w-[70%] h-[60%] bg-tertiary-container opacity-20 blur-[120px] rounded-full mix-blend-multiply" />
-      <div class="absolute top-[30%] right-[10%] w-[40%] h-[40%] bg-primary-container opacity-15 blur-[90px] rounded-full mix-blend-overlay" />
+      <div class="absolute top-[30%] right-[10%] w-[40%] h-[40%] bg-secondary-container opacity-20 blur-[90px] rounded-full mix-blend-overlay" />
     </div>
 
-    <main class="pb-24">
+    <main :class="hideNavRoutes.includes(route.name) ? 'pb-0' : 'pb-20'">
       <RouterView v-slot="{ Component }">
         <transition name="page" mode="out-in">
           <component :is="Component" />

@@ -7,6 +7,28 @@
 
 USE zhihuitushu;
 
+-- 首页 Banner 表
+CREATE TABLE IF NOT EXISTS banners (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'BannerID',
+    title VARCHAR(100) NOT NULL COMMENT '主标题',
+    subtitle VARCHAR(200) NULL COMMENT '副标题',
+    tag VARCHAR(50) NULL COMMENT '标签（如科幻经典）',
+    image_url VARCHAR(500) NOT NULL COMMENT '背景图URL',
+    link_url VARCHAR(500) NULL COMMENT '跳转链接',
+    sort_order INT DEFAULT 0 COMMENT '排序值',
+    status TINYINT DEFAULT 1 COMMENT '状态(0下架,1上架)',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_status (status),
+    INDEX idx_sort_order (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='首页Banner表';
+
+-- Banner 数据
+INSERT INTO banners (id, title, subtitle, tag, image_url, link_url, sort_order, status) VALUES
+(1, '三体', '刘慈欣', '科幻经典', 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=book%20banner%20science%20fiction%20space%20dark%20green&image_size=landscape', '/book/2', 1, 1),
+(2, '百年孤独', '加西亚·马尔克斯', '诺奖经典', 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=book%20banner%20magical%20realism%20vintage%20green&image_size=landscape', '/book/1', 2, 1),
+(3, '人类简史', '尤瓦尔·赫拉利', '畅销推荐', 'https://neeko-copilot.bytedance.net/api/text_to_image?prompt=book%20banner%20human%20history%20evolution%20green&image_size=landscape', '/book/4', 3, 1);
+
 -- 分类数据（ID从1开始自增）
 INSERT INTO categories (id, name, parent_id, sort_order) VALUES (1, '全部图书', 0, 0);
 INSERT INTO categories (id, name, parent_id, sort_order) VALUES (2, '文学小说', 0, 1);

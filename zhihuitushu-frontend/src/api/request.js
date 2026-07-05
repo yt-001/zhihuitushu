@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { getToken } from '@/stores/auth.js'
 
 const request = axios.create({
   baseURL: '/api',
@@ -10,14 +9,10 @@ const request = axios.create({
   },
 })
 
+// 后端使用 HttpOnly Cookie 下发 JWT，前端无需手动注入 Authorization。
+// withCredentials: true 会自动携带 Cookie。
 request.interceptors.request.use(
-  (config) => {
-    const token = getToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
+  (config) => config,
   (error) => Promise.reject(error)
 )
 

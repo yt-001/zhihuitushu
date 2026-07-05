@@ -2,6 +2,8 @@ import { reactive, computed } from 'vue'
 
 const cachedUser = localStorage.getItem('user')
 const state = reactive({
+  // token 不是后端 JWT，而是一个本地 UI 登录标记。
+  // 后端认证通过 HttpOnly Cookie 中的 token 完成，axios 会自动携带。
   token: localStorage.getItem('token') || '',
   user: cachedUser ? JSON.parse(cachedUser) : null,
 })

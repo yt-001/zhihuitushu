@@ -20,6 +20,23 @@ spring:
       max-file-size: 50MB
       max-request-size: 100MB
 
+  # QQ 邮箱 SMTP 配置
+  # 请替换 username 为真实 QQ 邮箱地址，password 为 QQ 邮箱 SMTP 授权码（非登录密码）
+  # 生产环境建议通过环境变量 ${MAIL_USERNAME} / ${MAIL_PASSWORD} 注入
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: your_qq_email@qq.com
+    password: your_qq_authorization_code
+    protocol: smtp
+    default-encoding: UTF-8
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.starttls.enable: false
+      mail.smtp.socketFactory.port: 465
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+
   cors:
     allowed-origins: http://localhost:5173
     allowed-methods: GET,POST,PUT,DELETE,OPTIONS
